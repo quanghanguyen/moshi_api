@@ -10,22 +10,23 @@ import com.example.callapi.viewmodel.ApiViewModel
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
     private val apiViewModel: ApiViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         initObserve()
         apiViewModel.callApi()
     }
 
-    fun initObserve() {
+    private fun initObserve() {
         apiViewModel.callApiResult.observe(this) { result ->
             when (result) {
                 is ApiViewModel.CallApiResult.ResultOk -> {
-                    Log.e("Data", result.result.body().toString())
+                    binding.text.text = result.result.toString()
                 }
                 is  ApiViewModel.CallApiResult.ResultError -> {
                     Toast.makeText(this, "Error", Toast.LENGTH_LONG).show()
@@ -34,4 +35,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
+    }
 }

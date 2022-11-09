@@ -4,6 +4,7 @@ import com.squareup.moshi.Moshi
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class QuotesApiProvider {
@@ -13,11 +14,11 @@ class QuotesApiProvider {
     }
 
     fun getRetrofit(): Retrofit {
-        val moshi = Moshi.Builder()
-            .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
-            .build()
+//        val moshi = Moshi.Builder()
+//            .add(com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory())
+//            .build()
         return Retrofit.Builder()
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(GsonConverterFactory.create())
             .client(getClient())
             .baseUrl(baseUrl)
             .build()

@@ -7,6 +7,8 @@ import com.example.callapi.model.QuoteList
 import com.example.callapi.repository.ApiRepository
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 
 class ApiViewModel : ViewModel() {
@@ -14,7 +16,7 @@ class ApiViewModel : ViewModel() {
     private val apiRepository = ApiRepository()
 
     sealed class CallApiResult {
-        class ResultOk(val result: Response<QuoteList>) : CallApiResult()
+        class ResultOk(val result: QuoteList?) : CallApiResult()
         object ResultError: CallApiResult()
     }
 
@@ -23,11 +25,24 @@ class ApiViewModel : ViewModel() {
             throwable.printStackTrace()
         }) {
             val result = apiRepository.service.getQuotes()
-            if (result.isSuccessful) {
-                callApiResult.value = CallApiResult.ResultOk(result)
-            } else {
-                callApiResult.value = CallApiResult.ResultError
-            }
+            result.enqueue(object : Callback<QuoteList> {
+                override fun onResponse(call: Call<QuoteList>, response: Response<QuoteList>) {
+                    if (response.isSuccessful) {
+                        callApiResult.value = CallApiResult.ResultOk(response.body())
+                    } else {
+                        callApiResult.value = CallApiResult.ResultError
+                    }
+                }
+
+                override fun onFailure(call: Call<QuoteList>, t: Throwable) {
+                    callApiResult.value = CallApiResult.ResultError
+                }
+            })
+//            if (result.isSuccessful) {
+//                callApiResult.value = CallApiResult.ResultOk(result)
+//            } else {
+//                callApiResult.value = CallApiResult.ResultError
+//            }
         }
     }
 }
